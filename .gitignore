@@ -1,0 +1,18 @@
+# data artifact
+data/*
+!data/.gitkeep
+
+# notebooks checkpoints
+.ipynb_checkpoints/
+
+# python cache
+__pycache__/
+*.pyc
+
+# figures
+*.png
+*.jpg
+*.pdf
+
+# sqlite db
+*.db
