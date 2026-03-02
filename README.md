@@ -47,9 +47,6 @@ src/events.py converts point anomalies into event clusters with start and end ti
 
 src/pipeline.py integrates all modules into a single workflow.
 
-Run via main.py.
-
-
 # How to Run
 
 Step 1: Set up the dependencies listed in Requirements.txt. Install them with 
