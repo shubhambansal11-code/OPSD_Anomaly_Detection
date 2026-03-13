@@ -59,6 +59,6 @@ Step 2:
 Run the pipeline (static analysis)
 
 ```
-python pipeline.py
+python src/pipeline.py
 ```
 
