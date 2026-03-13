@@ -1,4 +1,6 @@
 # src/pipeline.py
+import os
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -8,7 +10,7 @@ from residuals import compute_load_residual
 
 from features import build_feature_matrix
 from models.baselines import rolling_zscore, zscore_flags
-from models.autoencoder import fit_autoencoder, score_autoencoder, flag_from_contamination
+from models.autoencoder import fit_autoencoder, score_autoencoder, flag_from_contamination, save_autoencoder
 from events import point_flags_to_events
 from metrics import (events_per_month, duration_stats, severity_per_month, anomaly_rate, top_severe_events)
 
@@ -39,6 +41,10 @@ def run_pipeline(contamination=0.01, z_thresh=3.0, gap_hours=2):
     ae_flags, ae_thr=flag_from_contamination(ae_scores, contamination=contamination)
     ae_events=point_flags_to_events(residual, ae_flags, scores=ae_scores, gap_tolerance_hours=gap_hours)
 
+    #save model+stats
+    os.makedirs("models", exist_ok=True)
+    save_autoencoder(model, stats, "autoencoder.pt", "autoencoder_stats.pkl")
+
     # Metrics
     z_event_counts=events_per_month(z_events)
     z_duration=duration_stats(z_events)
@@ -55,3 +61,7 @@ def run_pipeline(contamination=0.01, z_thresh=3.0, gap_hours=2):
         "z_duration": z_duration, "z_severity": z_severity, "ae_scores": ae_scores, "ae_flags": ae_flags, "ae_events": ae_events,
         "ae_event_counts": ae_event_counts, "ae_duration": ae_duration, "ae_severity": ae_severity,
         "ae_thr": ae_thr}
+
+if __name__ == "__main__":
+    results = run_pipeline()
+    print("Pipeline run complete")

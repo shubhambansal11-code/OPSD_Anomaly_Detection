@@ -6,7 +6,7 @@ def events_per_month(event_summary):
     if event_summary.empty:
         return pd.Series(dtype=float)
     event_summary=event_summary.copy()
-    event_summary["month"]=event_summary["start_time"].dt.to_period("M").dt.to_timestamp()
+    event_summary["month"]=(event_summary["start_time"].dt.tz_localize(None).dt.to_period("M").dt.to_timestamp())
     return event_summary.groupby("month").size().rename("events_per_month")
 
 def duration_stats(event_summary):
@@ -20,7 +20,7 @@ def severity_per_month(event_summary):
     if event_summary.empty:
         return pd.Series(dtype=float)
     event_summary=event_summary.copy()
-    event_summary["month"]=event_summary["start_time"].dt.to_period("M").dt.to_timestamp()
+    event_summary["month"]=(event_summary["start_time"].dt.tz_localize(None).dt.to_period("M").dt.to_timestamp())
     return (event_summary.groupby("month")["max_abs_residual_MW"].mean().rename("avg_max_abs_residual_MW"))
 
 def anomaly_rate(flags):

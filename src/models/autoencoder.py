@@ -1,6 +1,7 @@
 # src/models/autoencoder.py
 import numpy as np
 import pandas as pd
+import pickle
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
@@ -63,3 +64,21 @@ def flag_from_contamination(scores, contamination=0.01):
     thr=float(np.quantile(scores.values, 1-contamination))
     flags=(scores>thr).astype(int).rename("is_anomaly_ae")
     return flags, thr
+
+def save_autoencoder(model, stats, model_path, stats_path):
+    torch.save(model.state_dict(), model_path)
+    with open(stats_path, "wb") as f:
+        pickle.dump(stats, f)
+
+def load_autoencoder(model_path, stats_path, device=None):
+    with open(stats_path, "rb") as f:
+        stats=pickle.load(f)
+    if device is None:
+        device="cuda" if torch.cuda.is_available() else "cpu"
+
+    model=AE(d=stats["input_dim"]).to(device)
+    model.load_state_dict(torch.load(model_path, map_location=device))
+    model.eval()
+
+    stats["device"]=device
+    return model, stats
