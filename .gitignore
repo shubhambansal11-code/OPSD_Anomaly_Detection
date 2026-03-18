@@ -2,6 +2,7 @@
 data/*
 !data/.gitkeep
 *.csv
+!outputs/*.csv
 *.json
 
 # notebooks checkpoints
