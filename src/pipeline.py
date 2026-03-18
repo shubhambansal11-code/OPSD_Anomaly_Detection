@@ -41,9 +41,9 @@ def run_pipeline(contamination=0.01, z_thresh=3.0, gap_hours=2):
     ae_flags, ae_thr=flag_from_contamination(ae_scores, contamination=contamination)
     ae_events=point_flags_to_events(residual, ae_flags, scores=ae_scores, gap_tolerance_hours=gap_hours)
 
+    os.makedirs("outputs", exist_ok=True) 
     #save model+stats
-    os.makedirs("models", exist_ok=True)
-    save_autoencoder(model, stats, "autoencoder.pt", "autoencoder_stats.pkl")
+    save_autoencoder(model, stats, "outputs/autoencoder.pt", "outputs/autoencoder_stats.pkl")
 
     # Metrics
     z_event_counts=events_per_month(z_events)
@@ -55,6 +55,19 @@ def run_pipeline(contamination=0.01, z_thresh=3.0, gap_hours=2):
     ae_duration=duration_stats(ae_events)
     ae_severity=severity_per_month(ae_events)
     ae_rate=anomaly_rate(ae_flags)
+
+    ae_scores.to_csv("outputs/ae_scores.csv", index=True)
+    ae_events.to_csv("outputs/ae_events.csv", index=False)
+    z_events.to_csv("outputs/z_events.csv", index=False)
+
+    residual.reindex(X.index).to_frame(name="residual").to_csv("outputs/residual_series.csv", index=True)
+    summary_metrics = pd.DataFrame({"model":["zscore", "autoencoder"], "anomaly_points":[int(z_flags.sum()), int(ae_flags.sum())],
+        "anomaly_rate":[float(z_rate), float(ae_rate)], "event_count":[len(z_events), len(ae_events)],
+        "avg_event_duration_hours":[float(z_events["duration_hours"].mean()) if not z_events.empty else 0.0,
+            float(ae_events["duration_hours"].mean()) if not ae_events.empty else 0.0,],
+        "avg_event_severity_mw": [float(z_events["max_abs_residual_MW"].mean()) if not z_events.empty else 0.0,
+            float(ae_events["max_abs_residual_MW"].mean()) if not ae_events.empty else 0.0,],})
+    summary_metrics.to_csv("outputs/summary_metrics.csv", index=False)
     
     #Too many at the moment, try slimming them down a bit..
     return {"df_de": df_de, "residual": residual, "X": X, "z": z, "z_flags": z_flags, "z_events": z_events, "z_event_counts": z_event_counts,
