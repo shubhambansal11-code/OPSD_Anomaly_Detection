@@ -22,6 +22,11 @@ ae_scores=pd.read_csv("outputs/ae_scores.csv", index_col=0, parse_dates=True)
 st.sidebar.header("Inputs")
 model_choice = st.sidebar.selectbox("Select Model",["Autoencoder", "Z-score"])
 
+#Need to cross-check this further
+date_min=residual.index.min().date()
+date_max=residual.index.max().date()
+date_range=st.sidebar.date_input("Select Date Range", value=(date_min, date_max),min_value=date_min,max_value=date_max)
+
 #Title and Description
 st.title("OPSD Anomaly Detection Dashboard")
 #Add also about iso forests description
@@ -42,11 +47,20 @@ if model_choice == "Autoencoder":
 else:
     events=z_events
 
+#Severity Threshold Slider
+max_sev=float(events["max_abs_residual_MW"].max()) if not events.empty else 1000.0
+severity_threshold=st.sidebar.slider("Minimum Event Severity (MW)",min_value=0.0,max_value=max_sev,value=0.0)
+
 # Metric Section
 st.subheader("Overview")
 col1, col2, col3 = st.columns(3)
 model_key = "autoencoder" if model_choice=="Autoencoder" else "zscore"
 selected_row = summary[summary["model"]==model_key]
+
+#safety check
+if selected_row.empty:
+    st.error("No summary row found for model: {model_key}")
+    st.stop()
 
 col1.metric("Anomaly Points", int(selected_row["anomaly_points"].values[0]))
 col2.metric("Anomaly Rate (%)", round(selected_row["anomaly_rate"].values[0] * 100, 2))
@@ -68,7 +82,9 @@ fig.add_trace(go.Scatter(
 anom_times=events["start_time"]
 
 #Safe alignment
-anom_values = residual.reindex(anom_times)["residual"]
+common_index=residual.index.intersection(anom_times)
+anom_values=residual.loc[common_index, "residual"]
+#anom_values = residual.reindex(anom_times)["residual"]
 
 fig.add_trace(go.Scatter(x=anom_times,y=anom_values,mode="markers",name="Anomalies",marker=dict(size=6)))
 st.plotly_chart(fig, use_container_width=True)
@@ -81,7 +97,13 @@ if model_choice == "Autoencoder":
     fig2.add_trace(go.Scatter(x=ae_scores.index,y=ae_scores["ae_recon_mse"],mode="lines",name="Reconstruction Error"))
     st.plotly_chart(fig2, use_container_width=True)
 else:
-    st.info("Z-score visualization can be added here....")
+    z_series=residual["residual"].copy()
+    z_mean=z_series.rolling(24*7).mean()
+    z_std=z_series.rolling(24*7).std()
+    z_plot=(z_series-z_mean)/z_std
+    fig2=go.Figure()
+    fig2.add_trace(go.Scatter(x=z_plot.index,y=z_plot,mode="lines",name="z-score"))
+    st.plotly_chart(fig2, use_container_width=True)
 
 st.markdown("---")
 
