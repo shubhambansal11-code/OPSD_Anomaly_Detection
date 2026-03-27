@@ -12,3 +12,13 @@ venv/
 .idea/
 .git/
 .gitignore
+outputs/
+data/
+*.csv
+models/
+*.pt
+*.pkl
+*.ipynb
+.ipynb_checkpoints/
+*.tmp
+*.swp
