@@ -58,11 +58,18 @@ def run_pipeline(contamination=0.01, z_thresh=3.0, gap_hours=2):
     ae_rate=anomaly_rate(ae_flags)
 
     ae_scores.to_csv("outputs/ae_scores.csv", index=True)
+    ae_flags.to_csv("outputs/ae_flags.csv", index=True)          
+    z.to_csv("outputs/z_scores.csv", index=True)                 
+    z_flags.to_csv("outputs/z_flags.csv", index=True)            
     ae_events.to_csv("outputs/ae_events.csv", index=False)
     z_events.to_csv("outputs/z_events.csv", index=False)
 
     residual.reindex(X.index).to_frame(name="residual").to_csv("outputs/residual_series.csv", index=True)
     #residual.to_frame(name="residual").to_csv("outputs/residual_series.csv", index=True)
+    
+    pd.DataFrame({"model": ["autoencoder"], "threshold": [ae_thr],"contamination": [contamination],}).to_csv("outputs/ae_threshold.csv", index=False)
+    pd.DataFrame({"contamination": [contamination],"z_thresh": [z_thresh],"gap_hours": [gap_hours],}).to_csv("outputs/run_config.csv", index=False)
+
     summary_metrics = pd.DataFrame({"model":["zscore", "autoencoder"], "anomaly_points":[int(z_flags.sum()), int(ae_flags.sum())],
         "anomaly_rate":[float(z_rate), float(ae_rate)], "event_count":[len(z_events), len(ae_events)],
         "avg_event_duration_hours":[float(z_events["duration_hours"].mean()) if not z_events.empty else 0.0,

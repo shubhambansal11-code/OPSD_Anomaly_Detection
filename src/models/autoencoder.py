@@ -46,7 +46,7 @@ def fit_autoencoder(X, epochs=8, batch_size=200, lr=1e-3, seed=42):
             opt.step()
             total+=loss.item()*len(xb)
         #print(f"epoch {epoch+1}: train_mse={total/len(Xn):.4f}")
-    stats = {"mu": mu, "sd": sd, "device": device}
+    stats = {"mu": mu, "sd": sd, "device": device, "input_dim": X.shape[1],}
     return model, stats
 
 def score_autoencoder(model, stats, X):
