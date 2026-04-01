@@ -5,6 +5,11 @@ import numpy as np
 def compute_load_residual(df):
     return (df["DE_load_actual_entsoe_transparency"]-df["DE_load_forecast_entsoe_transparency"])
 
+#Fill gaps in residuals
+def fill_residual_gaps(residual):
+    residual=residual.interpolate(method="time").ffill().bfill()
+    return residual
+
 #Rolling z-score for anomaly baseline
 def rolling_zscore(series, window=24*7): 
     mean=series.rolling(window).mean()

@@ -20,10 +20,3 @@ def ensure_datetime_index(df):
     if not isinstance(df.index, pd.DatetimeIndex):
         df.index=pd.to_datetime(df.index)
     return df.sort_index()
-
-#Interpolate and fill
-def fill_time_series_gaps(df):
-    df=ensure_datetime_index(df)
-    df=df.interpolate(method="time", limit_direction="both")
-    df=df.ffill().bfill()
-    return df

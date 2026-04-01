@@ -52,7 +52,7 @@ src/pipeline.py integrates all modules into a single workflow.
 Step 1: Set up the dependencies listed in Requirements.txt. Install them with 
 
 ```
-pip install -r Requirements.txt
+pip install -r requirements.txt
 ```
 Step 2: 
 

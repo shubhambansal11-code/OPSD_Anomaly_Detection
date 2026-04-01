@@ -5,8 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from config import OPSD_PATH
-from data_clean import select_core_de, fill_time_series_gaps
-from residuals import compute_load_residual
+from data_clean import select_core_de, ensure_datetime_index
+from residuals import compute_load_residual, fill_residual_gaps
 
 from features import build_feature_matrix
 from models.baselines import rolling_zscore, zscore_flags
@@ -22,10 +22,11 @@ def run_pipeline(contamination=0.01, z_thresh=3.0, gap_hours=2):
 
     #keep only Germany core cols and fill
     df_de = select_core_de(df)
-    df_de = fill_time_series_gaps(df_de)
+    df_de = ensure_datetime_index(df_de)
 
     #residual
     residual=compute_load_residual(df_de)
+    residual=fill_residual_gaps(residual)
 
     #features X
     X=build_feature_matrix(residual)
