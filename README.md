@@ -11,7 +11,7 @@ src/download_opsd.py downloads hourly power system data.
 
 ### Step 2: Data cleaning
 
-src/data_clean.py selects relevant variables and fills missing values using time-based interpolation.
+src/data_clean.py selects relevant variables.
 
 
 ### Step 3: Residual engineering
@@ -20,8 +20,7 @@ src/residuals.py creates the core signal:
 
 Residual = Actual Load − Forecast Load
 
-This represents forecast error and is the main anomaly signal.
-
+This represents forecast error and is the main anomaly signal. The missing values are filled using time-based interpolation.
 
 ### Step 4: Feature engineering
 
@@ -32,18 +31,22 @@ src/features.py creates lag features and rolling statistics on the residual seri
 
 models/baselines.py implements rolling z-score (3 sigma rule) to detect extreme deviations.
 
+### Step 6: Machine learning model
 
-### Step 6: Deep learning model
+models/isoforests.py implements implements an Isolation Forest model to detect anomalies based on how isolated a data point is from the learned normal data distribution.
+
+
+### Step 7: Deep learning model
 
 models/autoencoder.py implements a PyTorch Autoencoder to detect anomalies via reconstruction error.
 
 
-### Step 7: Event detection
+### Step 8: Event detection
 
 src/events.py converts point anomalies into event clusters with start and end time  duration, and severity  
 
 
-### Step 8: Pipeline orchestration
+### Step 9: Pipeline orchestration
 
 src/pipeline.py integrates all modules into a single workflow.
 

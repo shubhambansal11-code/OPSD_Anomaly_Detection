@@ -78,6 +78,7 @@ def run_pipeline(contamination=0.01, z_thresh=3.0, gap_hours=2):
     z_flags.to_csv("outputs/z_flags.csv", index=True)            
     ae_events.to_csv("outputs/ae_events.csv", index=False)
     z_events.to_csv("outputs/z_events.csv", index=False)
+    if_events.to_csv("outputs/if_events.csv", index=False)
 
     residual.reindex(X.index).to_frame(name="residual").to_csv("outputs/residual_series.csv", index=True)
     #residual.to_frame(name="residual").to_csv("outputs/residual_series.csv", index=True)
