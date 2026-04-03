@@ -18,9 +18,9 @@ class AE(nn.Module):
     def forward(self, x):
         return self.net(x)
 
-def fit_autoencoder(X, epochs=8, batch_size=200, lr=1e-3, seed=42):
-    torch.manual_seed(seed)
-    np.random.seed(seed)
+def fit_autoencoder(X, epochs=8, batch_size=200, lr=1e-3, random_state=42):
+    torch.manual_seed(random_state)
+    np.random.seed(random_state)
 
     #standardize using full data stats
     mu=X.mean()
