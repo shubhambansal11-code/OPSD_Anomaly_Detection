@@ -33,6 +33,28 @@ date_max=residual.index.max().date()
 date_range=st.sidebar.date_input("Select Date Range", value=(date_min, date_max),min_value=date_min,max_value=date_max)
 
 #Explanations in the dashboard need to be added..
+st.sidebar.markdown("""
+**Notes**
+
+1. The residual is defined as: Residual = Actual Load - Forecasted Load
+
+2. The methods define anomalous timestamps differently:
+
+    a. Z-score flags timestamps where the residual is unusually far from its recent rolling average  
+      (using a 1-week rolling window and threshold |z| > 3).
+
+    b. Autoencoder operates on a feature vector that includes the current residual, the lagged residuals and the rolling statistics.  
+      It flags timestamps where this feature pattern deviates from patterns learnt during training, resulting in high reconstruction error. 
+      Approximately the top 1% highest reconstruction errors are marked as anomalies.
+
+    c. Isolation Forest uses the same feature representation as the autoencoder. 
+      However, it flags timestamps that lie in sparse or structurally different regions of this feature space, meaning they can be isolated with fewer splits.  
+      Approximately the top 1% most isolated points are marked as anomalies.
+
+3. Anomalous events are formed by grouping anomalous timestamps that occur within 2 hours of each other.
+
+4. In the time-series plot, markers indicate the start time of each detected event.
+""")
 
 if isinstance(date_range, tuple) and len(date_range)==2:
     start_date=pd.to_datetime(date_range[0])
