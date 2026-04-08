@@ -1,0 +1,5 @@
+model,split,anomaly_points,anomaly_rate,event_count
+autoencoder,train,403,0.009999751867199326,44
+autoencoder,test,14,0.001389440254069075,3
+iforest,train,403,0.009999751867199326,55
+iforest,test,74,0.007344184200079397,16

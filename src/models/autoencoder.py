@@ -27,9 +27,19 @@ def fit_autoencoder(X, epochs=8, batch_size=200, lr=1e-3, random_state=42):
     sd=X.std().replace(0, 1.0)
     Xn=((X-mu)/sd).values.astype(np.float32)
 
+# def fit_autoencoder(X_train, epochs=8, batch_size=200, lr=1e-3, random_state=42):
+#     torch.manual_seed(random_state)
+#     np.random.seed(random_state)
+
+#     #standardize using train stats only
+#     mu=X_train.mean()
+#     sd=X_train.std().replace(0, 1.0)
+#     Xn=((X_train - mu) / sd).values.astype(np.float32)
+
     loader=DataLoader(TensorDataset(torch.from_numpy(Xn)), batch_size=batch_size, shuffle=True)
 
     device="cuda" if torch.cuda.is_available() else "cpu"
+    # model=AE(d=X_train.shape[1]).to(device)
     model=AE(d=X.shape[1]).to(device)
     opt=torch.optim.Adam(model.parameters(), lr=lr)
     loss_fn=nn.MSELoss()
@@ -46,6 +56,7 @@ def fit_autoencoder(X, epochs=8, batch_size=200, lr=1e-3, random_state=42):
             opt.step()
             total+=loss.item()*len(xb)
         #print(f"epoch {epoch+1}: train_mse={total/len(Xn):.4f}")
+    #stats={"mu": mu, "sd": sd, "device": device, "input_dim": X_train.shape[1],}
     stats = {"mu": mu, "sd": sd, "device": device, "input_dim": X.shape[1],}
     return model, stats
 
@@ -64,6 +75,15 @@ def flag_from_contamination(scores, contamination=0.01):
     thr=float(np.quantile(scores.values, 1-contamination))
     flags=(scores>thr).astype(int).rename("is_anomaly_ae")
     return flags, thr
+
+#split thresholding into two explicit steps
+# def threshold_from_contamination(scores, contamination=0.01):
+#     thr = float(np.quantile(scores.values, 1-contamination))
+#     return thr
+
+# def flag_from_threshold(scores, threshold):
+#     flags = (scores > threshold).astype(int).rename("is_anomaly_ae")
+#     return flags
 
 def save_autoencoder(model, stats, model_path, stats_path):
     torch.save(model.state_dict(), model_path)

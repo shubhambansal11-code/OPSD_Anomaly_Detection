@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 
+#def fit_isolation_forest(X_train,contamination=0.01,n_estimators=400,random_state=42):
 def fit_isolation_forest(X,contamination=0.01,n_estimators=400,random_state=42):
     model=IsolationForest(n_estimators=n_estimators,contamination=contamination,random_state=random_state,)
     model.fit(X)

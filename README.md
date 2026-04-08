@@ -64,4 +64,3 @@ Run the pipeline (static analysis)
 ```
 python src/pipeline.py
 ```
-
