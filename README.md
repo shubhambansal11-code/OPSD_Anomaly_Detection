@@ -64,3 +64,11 @@ Run the pipeline (static analysis)
 ```
 python src/pipeline.py
 ```
+
+Step 3: 
+
+Produce the dashboard
+
+```
+python -m streamlit run app/streamlit_app.py
+```
