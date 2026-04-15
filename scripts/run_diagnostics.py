@@ -1,6 +1,7 @@
 from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
+#from src/events import point_flags_to_events
 
 ROOT=Path(__file__).resolve().parent.parent
 OUTPUTS_DIR=ROOT/"outputs"
@@ -20,6 +21,10 @@ def main():
     ae_scores=load_series(OUTPUTS_DIR/"ae_scores.csv", "ae_recon_mse")
     ae_flags=load_series(OUTPUTS_DIR/"ae_flags.csv", "is_anomaly_ae").astype(int)
     z_flags=load_series(OUTPUTS_DIR/"z_flags.csv", "is_anomaly_zscore").astype(int)
+    if_flags=load_series(OUTPUTS_DIR/"if_flags.csv", "is_anomaly_iforest").astype(int)
+    ae_events=pd.read_csv(OUTPUTS_DIR/"ae_events.csv", parse_dates=["start_time", "end_time"])
+    if_events=pd.read_csv(OUTPUTS_DIR/"if_events.csv", parse_dates=["start_time", "end_time"])
+    z_events=pd.read_csv(OUTPUTS_DIR/"z_events.csv", parse_dates=["start_time", "end_time"])
     #overlap_df=pd.DataFrame({"ae_flag":ae_flags,"z_flag":z_flags}).fillna(0).astype(int)
     overlap_df=pd.concat([ae_flags.rename("ae_flag"),z_flags.rename("z_flag")], axis=1).fillna(0).astype(int)
     print("\nAE versus Z score overlap:")
@@ -50,6 +55,17 @@ def main():
         print(f"Timestamp:{ts}")
         print(f"AE score:{ae_scores.loc[ts]:.5f}")
         print(f"Residual:{residual.loc[ts]:.3f}")
+    
+    monthly_vol=residual.resample("M").std().rename("residual_std")
+    monthly_vol.index=monthly_vol.index.to_period("M").to_timestamp()
+    print("\nTop 10 months by residual volatility:")
+    print(monthly_vol.sort_values(ascending=False).head(20))
+
+    summ=pd.DataFrame({"model":["Autoencoder","Isolation Forest","Z-score"],"anomaly_points":[int(ae_flags.sum()),int(if_flags.sum()),int(z_flags.sum())],
+    "event_count":[len(ae_events),len(if_events),len(z_events)],}) 
+    summ["points_per_event"]=summ["anomaly_points"]/summ["event_count"]
+    print("\nPoint counts vs event counts:")
+    print(summ)
 
 if __name__=="__main__":
     main()
