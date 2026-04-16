@@ -25,8 +25,8 @@ z_events=pd.read_csv("outputs/z_events.csv", parse_dates=["start_time", "end_tim
 
 st.sidebar.header("Inputs")
 #model_choice = st.sidebar.selectbox("Select Model",["Autoencoder","Isolation Forest","Z-score"])
-show_if=st.sidebar.checkbox("Compare with Isolation Forest", value=False)
-show_z=st.sidebar.checkbox("Compare with Z-score", value=False) 
+show_if=st.sidebar.checkbox("Compare with Isolation Forest", value=True)
+show_z=st.sidebar.checkbox("Compare with Z-score", value=True) 
 
 # date_min=residual.index.min().date()
 # date_max=residual.index.max().date()
@@ -35,20 +35,20 @@ show_z=st.sidebar.checkbox("Compare with Z-score", value=False)
 st.sidebar.markdown("""
 **Notes**
 
-1. The residual is defined as: Residual = Actual Load - Forecasted Load
+1. The residual is defined as: Residual = Actual Load - Forecasted Load (in MW)
 
 2. The methods define anomalous timestamps differently:
 
     a. Z-score flags timestamps where the residual is unusually far from its recent rolling average  
       (using a 1-week rolling window and threshold |z| > 3).
 
-    b. Autoencoder operates on a feature vector that includes the current residual, the lagged residuals and the rolling statistics.  
-      It flags timestamps where this feature pattern deviates from patterns learnt during training, resulting in high reconstruction error. 
-      Approximately the top 1% highest reconstruction errors are marked as anomalies.
+    b. Autoencoder features include the current residual, lagged values, and rolling statistics.
+       Timestamps with high reconstruction error, indicating patterns not seen during training, are flagged as anomalies
+       (approximately the top 1%).
 
-    c. Isolation Forest uses the same feature representation as the autoencoder. 
-      However, it flags timestamps that lie in sparse or structurally different regions of this feature space, meaning they can be isolated with fewer splits.  
-      Approximately the top 1% most isolated points are marked as anomalies.
+    c. Isolation Forest uses the same feature representation but detects observations that are isolated in the feature space,
+       meaning they differ structurally from typical patterns
+       (approximately the top 1%).             
 
 3. Anomalous events are formed by grouping anomalous timestamps that occur within 2 hours of each other.
 
@@ -69,13 +69,10 @@ st.sidebar.markdown("""
 #Title and Description
 st.title("OPSD Anomaly Detection")
 st.write("""
-This dashboard analyzes forecast failure events in the German power system 
-using data from Open Power System Data (OPSD).         
+This dashboard analyzes deviations between actual and forecasted load in the German power system using data from Open Power System Data (OPSD).        
 
-The main view shows the deep leaning autoencoder model to detect anomalous events. 
-Comparison with Isolation Forest and Z-score methods can be enabled from the sidebar.
-
-Anomalies represent significant deviations between actual and forecasted load. 
+The main view shows the deep leaning autoencoder model in comparison with the Isolation Forests and Z-score methods to detect anomalous events. 
+To view the models independently, disable the comparison methods from the sidebar.
 """)
 
 # ae_events_filtered=ae_events[(ae_events["start_time"]>=start_date) & (ae_events["start_time"]<=end_date)].copy()

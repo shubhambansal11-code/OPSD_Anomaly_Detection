@@ -1,6 +1,6 @@
 # OPSD Anomaly Detection
 
-This repository contains the files and software to detect anomalous events (forecast failures) in Deutschland power grid data.
+This repository contains the code and tools to detect anomalous events (i.e., deviations between actual and forecasted load) in the German power system using data from Open Power System Data (OPSD).
 
 # Workflow
 
