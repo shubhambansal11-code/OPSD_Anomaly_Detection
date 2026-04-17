@@ -33,7 +33,7 @@ models/baselines.py implements rolling z-score (3 sigma rule) to detect extreme 
 
 ### Step 6: Machine learning model
 
-models/isoforests.py implements implements an Isolation Forest model to detect anomalies based on how isolated a data point is from the learned normal data distribution.
+models/isoforests.py implements an Isolation Forest model to detect anomalies based on how isolated a data point is from the learned normal data distribution.
 
 
 ### Step 7: Deep learning model
@@ -43,7 +43,7 @@ models/autoencoder.py implements a PyTorch Autoencoder to detect anomalies via r
 
 ### Step 8: Event detection
 
-src/events.py converts point anomalies into event clusters with start and end time  duration, and severity  
+src/events.py converts point anomalies into event clusters with start and end time duration, and severity  
 
 
 ### Step 9: Pipeline orchestration

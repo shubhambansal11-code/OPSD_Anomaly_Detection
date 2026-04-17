@@ -58,12 +58,21 @@ def main():
     
     monthly_vol=residual.resample("M").std().rename("residual_std")
     monthly_vol.index=monthly_vol.index.to_period("M").to_timestamp()
+    monthly_vol.to_csv(PLOT_DIR/"monthly_residual_volatility.csv",index=True)
     print("\nTop 10 months by residual volatility:")
     print(monthly_vol.sort_values(ascending=False).head(20))
+
+    rolling_std=residual.rolling(24*7).std()
+    plt.figure(figsize=(10,4))
+    plt.plot(rolling_std.index,rolling_std.values)
+    plt.title("Rolling residual volatility (7 day SD)")
+    plt.savefig(PLOT_DIR/"rolling_residual_volatility.png")
+    plt.close()
 
     summ=pd.DataFrame({"model":["Autoencoder","Isolation Forest","Z-score"],"anomaly_points":[int(ae_flags.sum()),int(if_flags.sum()),int(z_flags.sum())],
     "event_count":[len(ae_events),len(if_events),len(z_events)],}) 
     summ["points_per_event"]=summ["anomaly_points"]/summ["event_count"]
+    summ.to_csv(PLOT_DIR/"points_vs_events_summary.csv",index=False)
     print("\nPoint counts vs event counts:")
     print(summ)
 
